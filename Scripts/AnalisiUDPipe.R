@@ -1,56 +1,58 @@
+# UDPipe permette di tokenizzare un testo per effettuare la sentiment analysis
+# basandosi su un dizionario di riferimento
+
+# si installa e si chiama il pacchetto di UDPipe, si richiama anche Tidyverse
 install.packages("udpipe")
 library(udpipe)
 
 library(tidyverse)
 
+# si carica il file delle recensioni
 load("CorporaEsame/GoodreadsRecensioni.RData")
 
-# find models in the resources folder
+# si carica un modello di riferimento nella lingua delle analisi (inglese)
 list.files(path = "Materiali", pattern = "english", full.names = T)
 
-# load the (english) model
 udmodel <- udpipe_load_model(file = "Materiali/english-ewt-ud-2.4-190531.udpipe")
 
-# then process the text
+# si processa infine il testo per rintracciare le recensioni
 testoAnnotato <- udpipe(object = udmodel, x = dfGoodreads$recensione, doc_id = rownames(dfGoodreads), trace = T)
 View(testoAnnotato)
 
-# now everything is ready to perform (multi-language) SA!
-
-# Example: multi-dimensional SA with SentiArt
-# info: https://github.com/matinho13/SentiArt
-
-# read SentiArt from resources folder
+# una volta processato il testo, si carica un dizionario inglese
 dizionario <- read.csv("Materiali/SentiArt_eng.csv", stringsAsFactors = F)
+
+# si verifica il corretto caricamento
 View(dizionario)
 
-# note: Sentiart includes values per word (not lemma) in lowercase, so we need to lowercase the tokens in our text and perform the analysis on them
+# si tokenizza il testo
 testoAnnotato$token_lower <- tolower(testoAnnotato$token)
 
-# to avoid annotating stopwords, limit the analysis to meaningful content words
+# si selezionano alcune categorie di parole piene, per evitare le 'stopwords'
 POS_sel <- c("NOUN", "VERB", "ADV", "ADJ", "INTJ") # see more details here: https://universaldependencies.org/u/pos/
 testoAnnotato$token_lower[which(!testoAnnotato$upos %in% POS_sel)] <- NA
 
-# use left_join to add multiple annotations at once
 testoAnnotato <- left_join(testoAnnotato, dizionario, by = c("token_lower" = "word")) 
-
-# now that the sentiment annotation is done, let's keep just the useful info 
 testoAnnotato <- testoAnnotato[c(1,19:length(testoAnnotato))]
 testoAnnotato$doc_id <- as.numeric(testoAnnotato$doc_id)
 
-# replace NAs with zeros
+# si eliminano definitivamente, assegnando loro un valore 0, le stopwords
 testoAnnotato <- mutate(testoAnnotato, across(everything(), ~replace_na(.x, 0)))
 
 View(testoAnnotato)
 
-# get overall values per review
+# si ottengono le frasi correttamente tokenizzate
 frasiAnnotate <- testoAnnotato %>%
   group_by(doc_id) %>%
   summarise_all(list(mean = mean))
 
-# let's order the reviews by number
+# si riordinano le frasi annotate
 frasiAnnotate <- frasiAnnotate[order(as.numeric(frasiAnnotate$doc_id)),]
 
-# now we can join the annotations to the original dataframe 
+# infine, si uniscono i valori delle frasi annotate con le rispettive frasi nel
+# dataframe di partenza
+
 dfGoodreadsAnnotato <- cbind(dfGoodreads, frasiAnnotate[,2:length(frasiAnnotate)])
+
+# si visualizza il file: a ogni frase corrispondono valori per ciascuna emozione
 View(dfGoodreadsAnnotato)
