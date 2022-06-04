@@ -5,7 +5,7 @@ Ho scelto di analizzare le recensioni di due libri di Antoine de Saint-Exupéry:
 
 # Com'è strutturato il repository
 
-All'interno del repository sono presenti quattro cartelle.
+All'interno del repository sono presenti quattro cartelle e un file in cui si commentano i risultati ottenuti.
 
 ## Scripts
 La cartella più importante: contiene i cinque script per effettuare le analisi, che bisogna eseguire in ordine (01-05).
