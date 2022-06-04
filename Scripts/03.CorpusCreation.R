@@ -1,4 +1,4 @@
-# una volta effettuato lo scraping, si crea un file R che coinvolga 
+# una volta effettuato lo scraping, si crea un file R che riunisca
 # i file csv precedentemente creati
 
 install.packages("cld2")
