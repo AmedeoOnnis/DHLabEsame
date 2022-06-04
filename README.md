@@ -5,7 +5,7 @@
 All'interno del repository sono presenti quattro cartelle.
 
 ## Scripts
-La cartella più importante: contiene i cinque script per effettuare le analisi, che bisogna eseguire in ordine (1 - 5).
+La cartella più importante: contiene i cinque script per effettuare le analisi, che bisogna eseguire in ordine (01-05).
 
 ## Corpora Esame
 Contiene le recensioni scaricate e utilizzate durante le analisi.
